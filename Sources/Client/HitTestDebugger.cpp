@@ -304,10 +304,10 @@ namespace spades {
 				Handle<Bitmap> b(renderer->ReadBitmap(), false);
 				//b->Save(fileName);
 				displayShot.Set(b);
-				SPLog("HitTestDebugger: saved to '%s'", fileName.c_str());
+				//SPLog("HitTestDebugger: saved to '%s'", fileName.c_str());
 			} catch (const std::exception &ex) {
-				SPLog("HitTestDebugger failure: failed to save '%s': %s", fileName.c_str(),
-				      ex.what());
+				//SPLog("HitTestDebugger failure: failed to save '%s': %s", fileName.c_str(),
+				//      ex.what());
 			}
 
 			renderer->Flip();

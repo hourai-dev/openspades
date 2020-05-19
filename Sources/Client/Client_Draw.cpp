@@ -603,13 +603,60 @@ namespace spades {
 			}
 
 			if (debugHitTestImage) {
+				float scale = 0.2f;
 				renderer->SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
-				int size = (int) (renderer->ScreenHeight() * 0.4);
-				if (size > renderer->ScreenWidth() * 0.4) size = (int) (renderer->ScreenWidth() * 0.4);
+				int size = (int) (renderer->ScreenHeight() * scale);
+				if (size > renderer->ScreenWidth() * scale) size = (int) (renderer->ScreenWidth() * scale);
 				if (size > 512) size = 512;
+
+
+				// draw border
+
+				float alpha = 1.f;
+				AABB2 outRect(16.f, (renderer->ScreenHeight() - size)/2.f, size,
+							  size);
+				Handle<IImage> border;
+				float borderWidth;
+				AABB2 borderRect = outRect;
+				border = renderer->RegisterImage("Gfx/MinimapBorder.png");
+				borderWidth = 2.f;
+				borderRect = borderRect.Inflate(borderWidth - 8.f);
+
+				renderer->SetColorAlphaPremultiplied(MakeVector4(alpha, alpha, alpha, alpha));
+				renderer->DrawImage(border,
+									AABB2(borderRect.GetMinX() - 16, borderRect.GetMinY() - 16, 16, 16),
+									AABB2(0, 0, 16, 16));
+				renderer->DrawImage(border,
+									AABB2(borderRect.GetMaxX(), borderRect.GetMinY() - 16, 16, 16),
+									AABB2(16, 0, 16, 16));
+				renderer->DrawImage(border,
+									AABB2(borderRect.GetMinX() - 16, borderRect.GetMaxY(), 16, 16),
+									AABB2(0, 16, 16, 16));
+				renderer->DrawImage(border, AABB2(borderRect.GetMaxX(), borderRect.GetMaxY(), 16, 16),
+									AABB2(16, 16, 16, 16));
+
+				renderer->DrawImage(
+				  border,
+				  AABB2(borderRect.GetMinX(), borderRect.GetMinY() - 16, borderRect.GetWidth(), 16),
+				  AABB2(16, 0, 0, 16));
+				renderer->DrawImage(
+				  border, AABB2(borderRect.GetMinX(), borderRect.GetMaxY(), borderRect.GetWidth(), 16),
+				  AABB2(16, 16, 0, 16));
+				renderer->DrawImage(
+				  border,
+				  AABB2(borderRect.GetMinX() - 16, borderRect.GetMinY(), 16, borderRect.GetHeight()),
+				  AABB2(0, 16, 16, 0));
+				renderer->DrawImage(
+				  border, AABB2(borderRect.GetMaxX(), borderRect.GetMinY(), 16, borderRect.GetHeight()),
+				  AABB2(16, 16, 16, 0));
+					
+				// draw debug hit test image	
 				renderer->DrawImage(debugHitTestImage,
-					AABB2(renderer->ScreenWidth() - size, renderer->ScreenHeight() - size, size, size),
+					AABB2(16.f, (renderer->ScreenHeight() - size)/2.f,
+						size, size),
 					AABB2(128, 512 - 128, 256, 256 - 512)); // flip Y axis
+					
+				
 			}
 		}
 
