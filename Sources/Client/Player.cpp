@@ -74,6 +74,7 @@ namespace spades {
 			nextBlockTime = 0.f;
 			firstDig = false;
 			lastReloadingTime = 0.f;
+			lastHitTime = 0.f;
 
 			pendingPlaceBlock = false;
 			pendingRestockBlock = false;
@@ -548,7 +549,7 @@ namespace spades {
 			// for hit-test debugging
 			std::map<int, HitTestDebugger::PlayerHit> playerHits;
 			std::vector<Vector3> bulletVectors;
-
+			
 			// Vector3 right = GetRight();
 			// Vector3 up = GetUp();
 
@@ -573,7 +574,16 @@ namespace spades {
 				dir2.z += (SampleRandomFloat() - SampleRandomFloat()) * spread;
 				Vector3 dir = dir2.Normalize();
 
+				if (GetWeaponType() == SHOTGUN_WEAPON) {
+					if (pastBulletVectors.size() >= 24)
+						pastBulletVectors.pop_back();
+				} else {
+					if (pastBulletVectors.size() >= 8)
+						pastBulletVectors.pop_back();
+				}
+
 				bulletVectors.push_back(dir);
+				pastBulletVectors.push_back(dir);
 
 				// first do map raycast
 				GameMap::RayCastResult mapResult;
@@ -695,6 +705,10 @@ namespace spades {
 
 						finalHitPos = muzzle + dir * hitPlayerActualDistance;
 
+						if (hitPlayer->GetTeamId() != this->GetTeamId()) {
+							lastHitTime = world->GetTime();
+						}
+
 						switch (hitPart) {
 							case HitBodyPart::Head:
 								playerHits[hitPlayer->GetId()].numHeadHits++;
@@ -747,6 +761,14 @@ namespace spades {
 					world->GetListener()->AddBulletTracer(this, muzzle, finalHitPos);
 
 				// one pellet done
+			}
+
+			// debug bullet vectors
+			if (this == world->GetLocalPlayer()) {
+				std::cout << "HIT TEST DEBUGGER: " << world->GetTime() << std::endl;
+				for (const auto v: pastBulletVectors) {
+					std::cout << v.x << v.y << v.z << std::endl;
+				}
 			}
 
 			// do hit test debugging

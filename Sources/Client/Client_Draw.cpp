@@ -602,7 +602,10 @@ namespace spades {
 				//bitmap->Save("HitTestDebugger/update.tga");
 			}
 
-			if (debugHitTestImage) {
+			float hitTimestamp = world->GetLocalPlayer()->GetLastHitTime();
+			bool active = abs(world->GetTime() - hitTimestamp) <= 8.f;
+
+			if (debugHitTestImage && active) {
 				float scale = 0.2f;
 				renderer->SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
 				int size = (int) (renderer->ScreenHeight() * scale);

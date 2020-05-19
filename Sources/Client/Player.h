@@ -112,6 +112,7 @@ namespace spades {
 			IntVector3 blockCursorDragPos;
 			bool lastSingleBlockBuildSeqDone;
 			float lastReloadingTime;
+			float lastHitTime;
 
 			bool pendingPlaceBlock;
 			bool pendingRestockBlock;
@@ -123,6 +124,8 @@ namespace spades {
 			bool reloadingServerSide;
 
 			float respawnTime;
+
+			std::vector<Vector3> pastBulletVectors;
 
 			void RepositionPlayer(const Vector3 &);
 			void MovePlayer(float fsynctics);
@@ -148,6 +151,7 @@ namespace spades {
 			IntVector3 GetColor();
 			IntVector3 GetBlockColor() { return blockColor; }
 			ToolType GetTool() { return tool; }
+			float GetLastHitTime() { return lastHitTime; }
 			bool IsLocalPlayer();
 
 			PlayerInput GetInput() { return input; }
