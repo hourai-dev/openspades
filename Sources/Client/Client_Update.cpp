@@ -39,6 +39,7 @@
 #include "LimboView.h"
 #include "MapView.h"
 #include "PaletteView.h"
+#include "PhysicsConstants.h"
 #include "Tracer.h"
 
 #include "GameMap.h"
@@ -1085,6 +1086,33 @@ namespace spades {
 			}
 			AddLocalEntity(new Tracer(this, muzzlePos, hitPos, vel));
 			AddLocalEntity(new MapViewTracer(muzzlePos, hitPos, vel));
+
+			// dist vector calculation for bullet crack
+			static const int rifleCrackChance = 80;
+			static const int smgCrackChance = 50;
+			float bulletCrackTriggerDist = 80.f + SampleRandomInt(-20, 40);
+			Vector3 shot = hitPos - muzzlePos;
+			float shotLength = std::sqrt(std::pow(shot.x, 2) + std::pow(shot.y, 2) + std::pow(shot.z, 2));
+			Vector3 unitShot = Vector3(shot.x/shotLength, shot.y/shotLength, shot.z/shotLength);
+			Vector3 res = unitShot * bulletCrackTriggerDist;
+			res += muzzlePos;
+
+			//std::printf("res = %f %f %f\n", res.x, res.y, res.z);
+			//std::printf("muzzle = %f %f %f\n", muzzlePos.x, muzzlePos.y, muzzlePos.z);
+
+			int roll = SampleRandomInt(0, 100);
+			auto weaponType = player->GetWeaponType();
+			if (!IsMuted() && weaponType != SHOTGUN_WEAPON) {
+				if (weaponType == RIFLE_WEAPON && roll > rifleCrackChance)
+					return;
+				else if (weaponType == SMG_WEAPON && roll > smgCrackChance)
+					return;
+				AudioParam param;
+				param.volume = 3.65f;
+				param.pitch = .9f + SampleRandomFloat() * 0.2f * std::sin(fmod(world->GetTime()*3.1416, 60));
+				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/Bullets/BulletCrack.opus");
+				audioDevice->Play(c, res, param); 
+			}
 		}
 
 		void Client::BlocksFell(std::vector<IntVector3> blocks) {
