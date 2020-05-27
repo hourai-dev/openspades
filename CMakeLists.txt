@@ -79,7 +79,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	)
 
 	if(CMAKE_BUILD_TYPE MATCHES "Release")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native")
 		set(CMAKE_EXE_LINKER_FLAGS "-s")
 	endif()
 
