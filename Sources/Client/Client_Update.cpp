@@ -24,6 +24,7 @@
 #include <Core/ConcurrentDispatch.h>
 #include <Core/Settings.h>
 #include <Core/Strings.h>
+#include <cstdio>
 
 #include "IAudioChunk.h"
 #include "IAudioDevice.h"
@@ -1080,9 +1081,9 @@ namespace spades {
 
 			float vel;
 			switch (player->GetWeapon()->GetWeaponType()) {
-				case RIFLE_WEAPON: vel = 700.f; break;
-				case SMG_WEAPON: vel = 360.f; break;
-				case SHOTGUN_WEAPON: vel = 500.f; break;
+				case RIFLE_WEAPON: vel = 700.f + 400.f; break;
+				case SMG_WEAPON: vel = 360.f + 400.f; break;
+				case SHOTGUN_WEAPON: vel = 500.f + 400.f; break;
 			}
 			AddLocalEntity(new Tracer(this, muzzlePos, hitPos, vel));
 			AddLocalEntity(new MapViewTracer(muzzlePos, hitPos, vel));
@@ -1090,27 +1091,64 @@ namespace spades {
 			// dist vector calculation for bullet crack
 			static const int rifleCrackChance = 80;
 			static const int smgCrackChance = 50;
-			float bulletCrackTriggerDist = 80.f + SampleRandomInt(-20, 40);
+			static const float muffleSoundDistance = 128.f;
+			static const float muffleSoundShooterDistance = 110.f;
+			float bulletCrackTriggerDist = 80.f + SampleRandomInt(-20, 20);
 			Vector3 shot = hitPos - muzzlePos;
 			float shotLength = std::sqrt(std::pow(shot.x, 2) + std::pow(shot.y, 2) + std::pow(shot.z, 2));
 			Vector3 unitShot = Vector3(shot.x/shotLength, shot.y/shotLength, shot.z/shotLength);
 			Vector3 res = unitShot * bulletCrackTriggerDist;
 			res += muzzlePos;
 
+			std::printf("resLen, shotLen = %f, %f\n", bulletCrackTriggerDist, shotLength);
+			if (bulletCrackTriggerDist > shotLength)
+				return;
+
+			auto localPlayer = world->GetLocalPlayer();
+			if (localPlayer == nullptr) {
+				std::printf("NO LOCAL PLAYER.\n");
+				return;
+			}
+			Vector3 toOrigin = res - localPlayer->GetPosition();
+			float playerDistToSoundOrigin = std::sqrt(std::pow(toOrigin.x, 2) + std::pow(toOrigin.y, 2) +
+					std::pow(toOrigin.z, 2));
+		    std::printf("Distance to sonic boom: %f\n", playerDistToSoundOrigin);
 			//std::printf("res = %f %f %f\n", res.x, res.y, res.z);
 			//std::printf("muzzle = %f %f %f\n", muzzlePos.x, muzzlePos.y, muzzlePos.z);
+			Vector3 toPlayer = player->GetPosition() - localPlayer->GetPosition();
+			float playerDistToShooter = std::sqrt(std::pow(toPlayer.x, 2) + std::pow(toPlayer.y, 2) +
+					std::pow(toPlayer.z, 2));
+			std::printf("Distance to Shooter: %f\n", playerDistToShooter);
 
 			int roll = SampleRandomInt(0, 100);
+			int soundRoll = 1;
+			char soundName[64];
+			float pitchOffset;
+			AudioParam param;
+
+			param.volume = 4.00f;
+
+			if ((playerDistToSoundOrigin < muffleSoundDistance) && (playerDistToShooter > muffleSoundShooterDistance)) {
+				param.volume = 35.f;
+				soundRoll = SampleRandomInt(2,7);
+			} //else if (playerDistToSoundOrigin > muffleSoundDistance) {
+			//	soundRoll = SampleRandomInt(2,7);
+			//	param.referenceDistance = 10.f;
+			//	param.volume = 20.f;
+			//} Not implemented for now
+
+			(soundRoll == 1) ? param.pitch = .85f + SampleRandomFloat() * 0.25f * std::sin(fmod(world->GetTime()*3.1416, 60))
+				: param.pitch = .625f + SampleRandomFloat() * 0.25f;// * std::sin(fmod(world->GetTime()*3.1416, 60));
+
+			std::sprintf(soundName, "Sounds/Weapons/Bullets/BulletCrack%d.opus", soundRoll);
 			auto weaponType = player->GetWeaponType();
 			if (!IsMuted() && weaponType != SHOTGUN_WEAPON) {
 				if (weaponType == RIFLE_WEAPON && roll > rifleCrackChance)
 					return;
 				else if (weaponType == SMG_WEAPON && roll > smgCrackChance)
 					return;
-				AudioParam param;
-				param.volume = 3.65f;
-				param.pitch = .9f + SampleRandomFloat() * 0.2f * std::sin(fmod(world->GetTime()*3.1416, 60));
-				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/Bullets/BulletCrack.opus");
+				std::printf("PITCH: %f, SOUNDROLL: %d\n", param.pitch, soundRoll);
+				Handle<IAudioChunk> c = audioDevice->RegisterSound(soundName);
 				audioDevice->Play(c, res, param); 
 			}
 		}
