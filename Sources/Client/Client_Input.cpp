@@ -34,6 +34,7 @@
 #include "MapView.h"
 #include "PaletteView.h"
 
+#include "PhysicsConstants.h"
 #include "Weapon.h"
 #include "World.h"
 
@@ -66,6 +67,7 @@ DEFINE_SPADES_SETTING(cg_keyJump, "Space");
 DEFINE_SPADES_SETTING(cg_keyCrouch, "Control");
 DEFINE_SPADES_SETTING(cg_keySprint, "Shift");
 DEFINE_SPADES_SETTING(cg_keySneak, "v");
+DEFINE_SPADES_SETTING(cg_keySMGFireSelect, "z");
 
 DEFINE_SPADES_SETTING(cg_keyCaptureColor, "e");
 DEFINE_SPADES_SETTING(cg_keyGlobalChat, "t");
@@ -498,6 +500,15 @@ namespace spades {
 									PlayAlertSound();
 							}
 						}
+					} else if (CheckKey(cg_keySMGFireSelect, name) && down) {
+						if (world->GetLocalPlayer()->GetTeamId() < 2 &&
+							world->GetLocalPlayer()->IsAlive() &&
+							world->GetLocalPlayer()->GetWeapon()->GetWeaponType()
+							== SMG_WEAPON) {
+							smgFireSelector.NextMode();
+							SPLog("Switched SMG Fire mode.");
+						}
+
 					} else if (CheckKey(cg_keyToolGrenade, name) && down) {
 						if (world->GetLocalPlayer()->GetTeamId() < 2 &&
 						    world->GetLocalPlayer()->IsAlive()) {
