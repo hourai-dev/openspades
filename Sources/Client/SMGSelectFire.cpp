@@ -3,7 +3,9 @@
 #include "Player.h"
 #include "World.h"
 #include "Weapon.h"
+#include "IAudioDevice.h"
 #include <Core/Debug.h>
+#include <Core/Math.h>
 
 float spades::SMGSF::SMGFireSelector::GetInterval()
 {
@@ -77,6 +79,11 @@ void spades::SMGSF::SMGFireSelector::NextMode()
 	}
 }
 
+std::string spades::SMGSF::SMGFireSelector::GetModeStr()
+{
+	return modeStr[currentFireMode];
+}
+
 void spades::SMGSF::SMGFireSelector::
 FireInterval(spades::client::Player * player, float time, spades::client::WeaponInput& winp)
 {
@@ -115,4 +122,10 @@ FireInterval(spades::client::Player * player, float time, spades::client::Weapon
 			winp.primary = true;
 	}
 
+}
+
+void spades::SMGSF::SMGFireSelector::PlaySwitchSound(spades::client::IAudioDevice * audioDevice)
+{
+	auto c = audioDevice->RegisterSound("Sounds/Weapons/SMG/RaiseLocal.opus");
+	audioDevice->PlayLocal(c, MakeVector3(.4f, -.3f, .5f), spades::client::AudioParam());
 }

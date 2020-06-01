@@ -1,17 +1,22 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "Player.h"
+#include "IAudioDevice.h"
 
 namespace spades {
 	namespace SMGSF {
 
-		enum SMGMode { FULL_AUTO, SLOW_AUTO, BURST, SINGLE };
+		enum SMGMode { FULL_AUTO = 0, SLOW_AUTO = 1, BURST = 2, SINGLE = 3 };
 
 		class SMGFireSelector {
 			private:
 				SMGMode currentFireMode;
 				float lastShotTime;
 				bool singleFired;
+				const std::vector<std::string> modeStr = {"FULL", "SLOW", "BURST", "SINGLE"};
 
 			public:
 
@@ -25,10 +30,11 @@ namespace spades {
 				SMGMode GetMode();
 				void SetMode(const SMGMode newMode);
 				void NextMode();
+				std::string GetModeStr();
 
 				void FireInterval(spades::client::Player * player, float time,
 						spades::client::WeaponInput& winp);
-				void PlaySwitchSound();
+				void PlaySwitchSound(spades::client::IAudioDevice * audioDevice);
 
 
 		};

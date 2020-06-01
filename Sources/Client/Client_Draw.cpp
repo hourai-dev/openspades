@@ -585,6 +585,18 @@ namespace spades {
 				mapView->Draw();
 
 				DrawHealth();
+
+
+				if (p->GetTool() == Player::ToolWeapon && p->GetWeaponType() == SMG_WEAPON) {
+					sprintf(buf, "%s", smgFireSelector.GetModeStr().c_str());
+					std::string smgModeStr = buf;
+					font = fontManager->GetSquareDesignFont();
+					Vector2 size = font->Measure(smgModeStr);
+					Vector2 pos = MakeVector2(scrWidth - 196.f, scrHeight - 16.f - iconHeight - size.y);
+					font->DrawShadow(smgModeStr, pos, 1.f, MakeVector4(1, 1, 1, 1),
+									 MakeVector4(0, 0, 0, 0.5));
+				}
+
 			}
 		}
 

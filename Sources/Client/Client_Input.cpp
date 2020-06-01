@@ -506,6 +506,7 @@ namespace spades {
 							world->GetLocalPlayer()->GetWeapon()->GetWeaponType()
 							== SMG_WEAPON) {
 							smgFireSelector.NextMode();
+							smgFireSelector.PlaySwitchSound(audioDevice);
 							SPLog("Switched SMG Fire mode.");
 						}
 
