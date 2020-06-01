@@ -32,6 +32,7 @@
 #include "MumbleLink.h"
 #include "NoiseSampler.h"
 #include "Player.h"
+#include "SMGSelectFire.h"
 #include <Core/Math.h>
 #include <Core/ServerAddress.h>
 #include <Core/Stopwatch.h>
@@ -333,6 +334,7 @@ namespace spades {
 			int nextMapShotIndex;
 
 			Vector3 Project(Vector3);
+			SMGSF::SMGFireSelector smgFireSelector;
 
 			void DrawSplash();
 			void DrawStartupScreen();

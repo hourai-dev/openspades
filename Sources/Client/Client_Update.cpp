@@ -41,6 +41,7 @@
 #include "MapView.h"
 #include "PaletteView.h"
 #include "PhysicsConstants.h"
+#include "SMGSelectFire.h"
 #include "Tracer.h"
 
 #include "GameMap.h"
@@ -435,8 +436,13 @@ namespace spades {
 				}
 			}
 
+			bool isUsingSMG = player->GetWeapon()->GetWeaponType() == SMG_WEAPON;
+			if (player->GetTool() == spades::client::Player::ToolWeapon && isUsingSMG)
+				smgFireSelector.FireInterval(player, time, winp);
+
 			player->SetInput(inp);
 			player->SetWeaponInput(winp);
+			
 
 			// send player input
 			{
