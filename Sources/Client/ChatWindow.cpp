@@ -35,23 +35,41 @@ DEFINE_SPADES_SETTING(cg_killfeedHeight, "26");
 
 namespace spades {
 	namespace client {
+		//TODO: Fix hitlog window text wrapping.
 
-		ChatWindow::ChatWindow(Client *cli, IRenderer *rend, IFont *fnt, bool killfeed)
-		    : client(cli), renderer(rend), font(fnt), killfeed(killfeed) {
+		ChatWindow::ChatWindow(Client *cli, IRenderer *rend, IFont *fnt, Type chatWindowType)
+		    : client(cli), renderer(rend), font(fnt), chatWindowType(chatWindowType) {
 			firstY = 0.f;
 		}
 		ChatWindow::~ChatWindow() {}
 
-		float ChatWindow::GetWidth() { return renderer->ScreenWidth() / 2; }
+		float ChatWindow::GetWidth() {
+			if (chatWindowType == HITLOG)
+				return renderer->ScreenWidth()/3.8f;
+			else
+				return renderer->ScreenWidth()/2.f;
+		}
 
 		float ChatWindow::GetNormalHeight() {
-			float prop = killfeed ? (float)cg_killfeedHeight : (float)cg_chatHeight;
+			float prop = 0.f;
+			switch (chatWindowType) {
+				case KILLFEED:
+					prop = static_cast<float>(cg_killfeedHeight);
+					break;
+				case CHAT:
+					prop = static_cast<float>(cg_chatHeight);
+					break;
+				case HITLOG:
+					prop = static_cast<float>(cg_killfeedHeight);
+					break;
+			}
+			//float prop = killfeed ? (float)cg_killfeedHeight : (float)cg_chatHeight;
 
 			return renderer->ScreenHeight() * prop * 0.01f;
 		}
 
 		float ChatWindow::GetBufferHeight() {
-			if (killfeed) {
+			if (chatWindowType == KILLFEED || chatWindowType == HITLOG) {
 				return GetNormalHeight();
 			} else {
 				// Take up the remaining height
@@ -233,7 +251,23 @@ namespace spades {
 			float winH = expanded ? GetBufferHeight() : GetNormalHeight();
 
 			float winX = 4.f;
-			float winY = killfeed ? 8.f : renderer->ScreenHeight() - winH - 60.f;
+			float winY = 0.f;
+
+			switch(chatWindowType) {
+				case CHAT:
+					winY = renderer->ScreenHeight() - winH - 60.f;
+					break;
+				case KILLFEED:
+					winY = 8.f;
+					break;
+				case HITLOG:
+					winX = renderer->ScreenWidth() - 256.f - 10.f;
+					//winY = renderer->ScreenHeight() * .65f;
+					winY = renderer->ScreenHeight() - winH - 60.f;
+					break;
+			}
+
+
 			std::list<ChatEntry>::iterator it;
 
 			float lHeight = GetLineHeight();

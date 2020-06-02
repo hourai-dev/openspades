@@ -39,6 +39,7 @@
 #include "LimboView.h"
 #include "MapView.h"
 #include "PaletteView.h"
+#include "PhysicsConstants.h"
 #include "Tracer.h"
 
 #include "GameMap.h"
@@ -939,6 +940,48 @@ namespace spades {
 			}
 		}
 
+		static inline float GetHorizontalLength(const Vector3 &v) {
+			return std::sqrt(v.x * v.x + v.y * v.y);
+		}
+
+		void Client::HitLogMessage(spades::client::Player *hurtPlayer, HitType type,
+										  spades::client::Player *by)
+		{
+			std::string msg = ChatWindow::TeamColorMessage(by->GetName(), by->GetTeamId());
+			msg += " hit ";
+			msg += ChatWindow::TeamColorMessage(hurtPlayer->GetName(), hurtPlayer->GetTeamId());
+
+			switch(type) {
+				case HitTypeTorso:
+					msg += " [TORSO]";
+					break;
+				case HitTypeHead:
+					msg += " [HEAD]";
+					break;
+				case HitTypeArms:
+					msg += " [ARMS]";
+					break;
+				case HitTypeLegs:
+					msg += " [LEGS]";
+					break;
+				case HitTypeMelee:
+					msg += " [MELEE]";
+					break;
+				default:
+					msg+= " [???]";
+					break;
+			}
+
+			char temp[32];
+			sprintf(temp, "%.1f\0", GetHorizontalLength(by->GetPosition() - hurtPlayer->GetPosition()));
+			msg += " (";
+			msg += temp;
+			msg += " blocks)";
+
+			hitLogWindow->AddMessage(msg);
+
+		}
+
 		void Client::BulletHitPlayer(spades::client::Player *hurtPlayer, HitType type,
 		                             spades::Vector3 hitPos, spades::client::Player *by) {
 			SPADES_MARK_FUNCTION();
@@ -951,6 +994,9 @@ namespace spades {
 			}
 
 			if (hurtPlayer == world->GetLocalPlayer()) {
+				if (hurtPlayer) {
+					HitLogMessage(hurtPlayer, type, by);
+				}
 				// don't player hit sound now;
 				// local bullet impact sound is
 				// played by checking the decrease of HP
@@ -998,6 +1044,9 @@ namespace spades {
 				} else {
 					hitFeedbackFriendly = false;
 				}
+
+				HitLogMessage(hurtPlayer, type, by);
+
 			}
 		}
 

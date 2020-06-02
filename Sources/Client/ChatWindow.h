@@ -44,9 +44,13 @@ namespace spades {
 		static const char MsgColorSysInfo = MsgColorGreen;
 
 		class ChatWindow {
+		public:
+			enum Type { CHAT, KILLFEED, HITLOG };
+		private:
 			Client *client;
 			IRenderer *renderer;
 			IFont *font;
+
 
 			struct ChatEntry {
 				std::string msg;
@@ -61,7 +65,8 @@ namespace spades {
 
 			std::list<ChatEntry> entries;
 			float firstY;
-			bool killfeed;
+			//bool killfeed;
+			Type chatWindowType;
 
 			bool expanded = false;
 
@@ -73,7 +78,8 @@ namespace spades {
 			Vector4 GetColor(char);
 
 		public:
-			ChatWindow(Client *, IRenderer *rend, IFont *font, bool killfeed);
+			
+			ChatWindow(Client *, IRenderer *rend, IFont *font, Type);
 			~ChatWindow();
 
 			void AddMessage(const std::string &);

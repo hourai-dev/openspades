@@ -137,6 +137,7 @@ namespace spades {
 			// chat
 			std::unique_ptr<ChatWindow> chatWindow;
 			std::unique_ptr<ChatWindow> killfeedWindow;
+			std::unique_ptr<ChatWindow> hitLogWindow;
 
 			// player state
 			PlayerInput playerInput;
@@ -382,6 +383,9 @@ namespace spades {
 			void AddDebugObjectToScene(const OBB3 &, const Vector4 &col = MakeVector4(1, 1, 1, 1));
 			void DrawCTFObjects();
 			void DrawTCObjects();
+
+			void HitLogMessage(spades::client::Player *hurtPlayer, HitType type,
+							   spades::client::Player *by);
 
 			SceneDefinition CreateSceneDefinition();
 

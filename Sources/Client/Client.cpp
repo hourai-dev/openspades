@@ -111,9 +111,10 @@ namespace spades {
 			renderer->SetFogDistance(128.f);
 			renderer->SetFogColor(MakeVector3(.8f, 1.f, 1.f));
 
-			chatWindow.reset(new ChatWindow(this, GetRenderer(), fontManager->GetGuiFont(), false));
+			chatWindow.reset(new ChatWindow(this, GetRenderer(), fontManager->GetGuiFont(), ChatWindow::CHAT));
 			killfeedWindow.reset(
-			  new ChatWindow(this, GetRenderer(), fontManager->GetGuiFont(), true));
+			  new ChatWindow(this, GetRenderer(), fontManager->GetGuiFont(), ChatWindow::KILLFEED));
+			hitLogWindow.reset(new ChatWindow(this, GetRenderer(), fontManager->GetGuiFont(), ChatWindow::HITLOG));
 
 			hurtRingView.reset(new HurtRingView(this));
 			centerMessageView.reset(new CenterMessageView(this, fontManager->GetLargeFont()));
@@ -428,6 +429,7 @@ namespace spades {
 
 			chatWindow->Update(dt);
 			killfeedWindow->Update(dt);
+			hitLogWindow->Update(dt);
 			limbo->Update(dt);
 
 			// The loading screen

@@ -67,6 +67,7 @@ SPADES_SETTING(cg_keyJump);
 SPADES_SETTING(cg_keyAttack);
 SPADES_SETTING(cg_keyAltAttack);
 SPADES_SETTING(cg_keyCrouch);
+SPADES_SETTING(cg_minimapSize);
 DEFINE_SPADES_SETTING(cg_screenshotFormat, "jpeg");
 DEFINE_SPADES_SETTING(cg_stats, "0");
 DEFINE_SPADES_SETTING(cg_hideHud, "0");
@@ -443,6 +444,14 @@ namespace spades {
 			}
 		}
 
+		static bool cmp(Player*& a, Player*& b)
+		{
+			int aKills = a->GetWorld()->GetPlayerPersistent(a->GetId()).kills;
+			int bKills = b->GetWorld()->GetPlayerPersistent(b->GetId()).kills;
+
+			return aKills > bKills;
+		}
+
 		void Client::DrawJoinedAlivePlayerHUD() {
 			SPADES_MARK_FUNCTION();
 
@@ -585,6 +594,43 @@ namespace spades {
 				mapView->Draw();
 
 				DrawHealth();
+
+				// Draw current player score
+				std::vector<Player *> entries;
+				Player * localPlayer = world->GetLocalPlayer();
+				int playerScorePos = 0;
+				int numPlayers = 0;
+
+				for (int i = 0; i < world->GetNumPlayerSlots(); i++) {
+					Player *p = world->GetPlayer(i);
+					if (!p)
+						continue;
+
+					entries.push_back(p);
+
+					numPlayers++;
+				}
+
+				std::sort(entries.begin(), entries.end(), cmp);
+
+				for (int i = 0; i < numPlayers; i++) {
+					if (entries[i] == localPlayer) {
+						playerScorePos = i+1;
+					}
+				}
+				char temp[32];
+				sprintf(temp, "%d). ", playerScorePos);
+				std::string playerScoreInfo = temp;
+				playerScoreInfo += localPlayer->GetName();
+				sprintf(temp, " : %d", world->GetPlayerPersistent(localPlayer->GetId()).kills);
+				playerScoreInfo += temp;
+				playerScoreInfo += " kills";
+				
+				font = fontManager->GetGuiFont();
+				size = font->Measure(playerScoreInfo);
+				pos = MakeVector2((scrWidth - size.x) - 16.f, (float)cg_minimapSize + 24.f);
+				font->DrawShadow(playerScoreInfo, pos, 1.f, MakeVector4(1, 1, 1, 1),
+								 MakeVector4(0, 0, 0, 0.5));
 			}
 		}
 
@@ -825,6 +871,8 @@ namespace spades {
 
 					chatWindow->Draw();
 					killfeedWindow->Draw();
+					hitLogWindow->Draw();
+
 				}
 
 				// large map view should come in front
