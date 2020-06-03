@@ -559,6 +559,11 @@ namespace spades {
 			}
 
 			inp.jump = false;
+
+			float timeSinceDeath = time - lastAliveTime;
+			if (!player->IsAlive() && !followCameraState.enabled && timeSinceDeath >= 2.f) {
+				FollowKiller(player, player->GetLastKiller());
+			}
 		}
 
 #pragma mark - IWorldListener Handlers
@@ -799,6 +804,7 @@ namespace spades {
 
 			// The local player is dead; initialize the look-you-are-dead cam
 			if (victim == world->GetLocalPlayer()) {
+
 				followCameraState.enabled = false;
 
 				Vector3 v = -victim->GetFront();
@@ -937,6 +943,9 @@ namespace spades {
 					centerMessageView->AddMessage(msg);
 				}
 			}
+
+			victim->SetLastKiller(killer);
+
 		}
 
 		void Client::BulletHitPlayer(spades::client::Player *hurtPlayer, HitType type,

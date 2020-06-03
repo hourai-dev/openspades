@@ -123,6 +123,7 @@ namespace spades {
 			bool reloadingServerSide;
 
 			float respawnTime;
+			Player * lastKiller;
 
 			void RepositionPlayer(const Vector3 &);
 			void MovePlayer(float fsynctics);
@@ -240,6 +241,9 @@ namespace spades {
 			bool OverlapsWithOneBlock(IntVector3);
 
 			float BoxDistanceToBlock(IntVector3);
+
+			Player * GetLastKiller() { return lastKiller; }
+			void SetLastKiller(Player * p) { lastKiller = p; }
 		};
 	}
 }

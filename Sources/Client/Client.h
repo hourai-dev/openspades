@@ -256,6 +256,8 @@ namespace spades {
 			 */
 			void FollowNextPlayer(bool reverse);
 
+			void FollowKiller(Player * victim, Player * killer);
+
 			/**
 			 * Retrieves the current camera mode.
 			 */

@@ -756,5 +756,13 @@ namespace spades {
 				followCameraState.enabled = true;
 			}
 		}
+
+		void Client::FollowKiller(Player * victim, Player * killer) {
+			SPAssert(victim != killer);
+
+			followedPlayerId = killer->GetId();
+			followCameraState.enabled = true;
+			followCameraState.firstPerson = true;
+		}
 	} // namespace client
 } // namespace spades

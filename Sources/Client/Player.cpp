@@ -55,6 +55,7 @@ namespace spades {
 			eye = MakeVector3(0, 0, 0);
 			moveDistance = 0.f;
 			moveSteps = 0;
+			lastKiller = nullptr;
 
 			this->playerId = playerId;
 			this->weapon = Weapon::CreateWeapon(wType, this, *w->GetGameProperties());
